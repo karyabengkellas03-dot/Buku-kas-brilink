@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BRILink BukuKas</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#060b1f;
+color:#fff;
+padding:15px;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+.header{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.menu{
+background:#111827;
+padding:10px 15px;
+border-radius:12px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+
+.card{
+padding:20px;
+border-radius:20px;
+box-shadow:0 4px 10px rgba(0,0,0,.4);
+}
+
+.purple{background:linear-gradient(135deg,#7c3aed,#9333ea);}
+.blue{background:linear-gradient(135deg,#2563eb,#3b82f6);}
+.green{background:linear-gradient(135deg,#16a34a,#22c55e);}
+.orange{background:linear-gradient(135deg,#ea580c,#fb923c);}
+.dark{background:#111827;}
+
+.section{
+margin-top:20px;
+background:#111827;
+padding:20px;
+border-radius:20px;
+}
+
+input,select{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:12px;
+background:#1f2937;
+color:#fff;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.transaksi{
+background:#1f2937;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.badge{
+background:#16a34a;
+padding:5px 10px;
+border-radius:8px;
+font-size:12px;
+}
+
+.footer{
+margin-top:30px;
+text-align:center;
+opacity:.7;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<div class="menu">Dashboard</div>
+<div class="menu">Input Transaksi</div>
+<div class="menu">Mutasi</div>
+<div class="menu">Pelanggan</div>
+<div class="menu">Laporan</div>
+</div>
+
+<h1>
+<span style="color:#38bdf8">BRI</span>
+<span style="color:#fb923c">Link</span>
+ BukuKas
+</h1>
+
+<div class="grid">
+
+<div class="card purple">
+<h3>Total Aset</h3>
+<h1 id="aset">Rp 526.000.000</h1>
+</div>
+
+<div class="card blue">
+<h3>Total Transaksi</h3>
+<h1 id="trx">0</h1>
+</div>
+
+<div class="card green">
+<h3>Laba Bersih</h3>
+<h1 id="laba">Rp 0</h1>
+</div>
+
+<div class="card orange">
+<h3>Total Nominal</h3>
+<h1 id="nominalSemua">Rp 0</h1>
+</div>
+
+</div>
+
+<div class="section">
+<h2>Tambah Transaksi</h2>
+
+<select id="jenis">
+<option value="">Pilih Jenis</option>
+<option>Transfer</option>
+<option>Tarik Tunai</option>
+<option>Setor Tunai</option>
+<option>Pulsa</option>
+<option>QRIS</option>
+<option>Topup Ewallet</option>
+</select>
+
+<input type="text" id="nama" placeholder="Nama Pelanggan" />
+
+<input type="number" id="jumlah" placeholder="Nominal" />
+
+<button onclick="tambahTransaksi()">Simpan Transaksi</button>
+
+</div>
+
+<div class="section">
+<h2>Riwayat Transaksi</h2>
+<div id="listTransaksi"></div>
+</div>
+
+<div class="footer">
+BRILink BukuKas Online
+</div>
+
+<script>
+let transaksi = JSON.parse(localStorage.getItem('transaksi')) || [];
+
+function rupiah(angka){
+return 'Rp ' + angka.toLocaleString('id-ID');
+}
+
+function render(){
+const list = document.getElementById('listTransaksi');
+list.innerHTML = '';
+
+let total = 0;
+
+transaksi.forEach((item,index)=>{
+
+total += item.jumlah;
+
+const div = document.createElement('div');
+div.className = 'transaksi';
+
+div.innerHTML = `
+<div>
+<b>${item.jenis}</b><br>
+${item.nama}<br>
+${rupiah(item.jumlah)}
+</div>
+<div>
+<div class="badge">Berhasil</div>
+<button onclick="hapus(${index})" style="margin-top:10px;background:red;padding:8px;font-size:12px;">Hapus</button>
+</div>
+`;
+
+list.prepend(div);
+});
+
+document.getElementById('trx').innerText = transaksi.length;
+document.getElementById('nominalSemua').innerText = rupiah(total);
+document.getElementById('laba').innerText = rupiah(total * 0.02);
+}
+
+function tambahTransaksi(){
+const jenis = document.getElementById('jenis').value;
+const nama = document.getElementById('nama').value;
+const jumlah = parseInt(document.getElementById('jumlah').value);
+
+if(jenis === '' || nama === '' || isNaN(jumlah)){
+alert('Lengkapi data transaksi');
+return;
+}
+
+transaksi.push({
+jenis,
+nama,
+jumlah
+});
+
+localStorage.setItem('transaksi',JSON.stringify(transaksi));
+
+render();
+
+document.getElementById('jenis').value='';
+document.getElementById('nama').value='';
+document.getElementById('jumlah').value='';
+}
+
+function hapus(index){
+transaksi.splice(index,1);
+localStorage.setItem('transaksi',JSON.stringify(transaksi));
+render();
+}
+
+render();
+</script>
+
+</body>
+</html>
