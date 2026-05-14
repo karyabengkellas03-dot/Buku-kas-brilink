@@ -1,58 +1,60 @@
-const tambahTransaksi = () => {
-  if (!form.nominal || !form.akun) {
-    alert("Lengkapi data transaksi");
-    return;
-  }
+import { useState } from 'react'
+        {saldoBank.map((bank, index) => (
+          <div
+            key={index}
+            style={{
+              background: '#1E293B',
+              padding: 15,
+              borderRadius: 12,
+              marginTop: 10,
+            }}
+          >
+            <h3>{bank.nama}</h3>
+            <p>Rp {bank.saldo.toLocaleString()}</p>
+          </div>
+        ))}
+      </div>
 
-  const nominal = Number(form.nominal);
+      <div
+        style={{
+          background: '#101828',
+          padding: 20,
+          borderRadius: 20,
+          marginTop: 20,
+        }}
+      >
+        <h2>Riwayat Transaksi</h2>
 
-  const dataBaru = {
-    id: Date.now(),
-    tanggal:
-      form.tanggal ||
-      new Date().toLocaleDateString(),
-    jenis: form.jenis,
-    akun: form.akun,
-    rekeningTujuan: form.rekeningTujuan,
-    nominal: nominal,
-    keterangan: form.keterangan,
-  };
+        {transaksi.map((item, index) => (
+          <div
+            key={index}
+            style={{
+              background: '#1E293B',
+              padding: 15,
+              borderRadius: 12,
+              marginTop: 10,
+            }}
+          >
+            <h3>{item.jenis}</h3>
+            <p>Nominal: Rp {parseInt(item.nominal).toLocaleString()}</p>
+            <p>Dari: {item.rekeningAsal}</p>
+            <p>Ke: {item.rekeningTujuan}</p>
+            <p>{item.keterangan}</p>
+            <p>{item.tanggal}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-  // POTONG SALDO AKUN ASAL
-  const updateSaldo = saldoAkun.map((item) => {
-    // akun asal dipotong
-    if (item.nama === form.akun) {
-      return {
-        ...item,
-        saldo: item.saldo - nominal,
-      };
-    }
-
-    // rekening tujuan bertambah
-    if (
-      item.nama === form.rekeningTujuan
-    ) {
-      return {
-        ...item,
-        saldo: item.saldo + nominal,
-      };
-    }
-
-    return item;
-  });
-
-  setSaldoAkun(updateSaldo);
-
-  // simpan transaksi
-  setTransaksi([dataBaru, ...transaksi]);
-
-  // reset form
-  setForm({
-    tanggal: "",
-    jenis: "",
-    akun: "",
-    rekeningTujuan: "",
-    nominal: "",
-    keterangan: "",
-  });
-};
+const inputStyle = {
+  width: '100%',
+  padding: 15,
+  marginTop: 10,
+  borderRadius: 10,
+  border: '1px solid #334155',
+  background: '#0F172A',
+  color: 'white',
+  fontSize: 16,
+}
