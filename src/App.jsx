@@ -1,7 +1,208 @@
 import React, { useState } from "react";
 
 export default function App() {
+  // PAGE
   const [page, setPage] = useState("home");
+
+  // DATA AKUN
+  const [accounts, setAccounts] =
+    useState([
+      {
+        nama: "BRI Utama",
+        saldo: 5000000,
+      },
+      {
+        nama: "DANA",
+        saldo: 2000000,
+      },
+      {
+        nama: "OVO",
+        saldo: 1500000,
+      },
+    ]);
+
+  // FORM TAMBAH AKUN
+  const [newAccount, setNewAccount] =
+    useState({
+      nama: "",
+      saldo: "",
+    });
+
+  // FORM EDIT AKUN
+  const [editAccount, setEditAccount] =
+    useState({
+      pilih: "",
+      nama: "",
+      saldo: "",
+    });
+
+  // DATA TRANSAKSI
+  const [transactions, setTransactions] =
+    useState([]);
+
+  // FORM TRANSAKSI
+  const [form, setForm] = useState({
+    jenis: "",
+    nominal: "",
+    sumber: "",
+    penampung: "",
+    admin: "",
+    ket: "",
+  });
+
+  // TOTAL SALDO
+  const totalSaldo =
+    accounts.reduce(
+      (a, b) => a + b.saldo,
+      0
+    );
+
+  // TAMBAH AKUN
+  const tambahAkun = () => {
+    if (
+      !newAccount.nama ||
+      !newAccount.saldo
+    ) {
+      alert("Isi data akun");
+      return;
+    }
+
+    setAccounts([
+      ...accounts,
+      {
+        nama: newAccount.nama,
+        saldo: parseInt(
+          newAccount.saldo
+        ),
+      },
+    ]);
+
+    setNewAccount({
+      nama: "",
+      saldo: "",
+    });
+  };
+
+  // EDIT AKUN
+  const simpanEditAkun = () => {
+    const hasil =
+      accounts.map((item) => {
+        if (
+          item.nama ===
+          editAccount.pilih
+        ) {
+          return {
+            ...item,
+            nama:
+              editAccount.nama ||
+              item.nama,
+            saldo:
+              item.saldo +
+              parseInt(
+                editAccount.saldo || 0
+              ),
+          };
+        }
+
+        return item;
+      });
+
+    setAccounts(hasil);
+
+    setEditAccount({
+      pilih: "",
+      nama: "",
+      saldo: "",
+    });
+  };
+
+  // SIMPAN TRANSAKSI
+  const simpanTransaksi = () => {
+    if (
+      !form.nominal ||
+      !form.sumber
+    ) {
+      alert(
+        "Lengkapi transaksi"
+      );
+      return;
+    }
+
+    const nominal = parseInt(
+      form.nominal
+    );
+
+    // UPDATE SALDO
+    const updateSaldo =
+      accounts.map((item) => {
+        // SUMBER BERKURANG
+        if (
+          item.nama ===
+          form.sumber
+        ) {
+          return {
+            ...item,
+            saldo:
+              item.saldo -
+              nominal,
+          };
+        }
+
+        // PENAMPUNG BERTAMBAH
+        if (
+          item.nama ===
+          form.penampung
+        ) {
+          return {
+            ...item,
+            saldo:
+              item.saldo +
+              nominal,
+          };
+        }
+
+        // ADMIN BERTAMBAH
+        if (
+          item.nama ===
+          form.admin
+        ) {
+          return {
+            ...item,
+            saldo:
+              item.saldo + 2500,
+          };
+        }
+
+        return item;
+      });
+
+    setAccounts(updateSaldo);
+
+    // SIMPAN RIWAYAT
+    setTransactions([
+      {
+        ...form,
+        nominal,
+        tanggal:
+          new Date().toLocaleString(),
+      },
+      ...transactions,
+    ]);
+
+    // RESET FORM
+    setForm({
+      jenis: "",
+      nominal: "",
+      sumber: "",
+      penampung: "",
+      admin: "",
+      ket: "",
+    });
+
+    alert(
+      "Transaksi berhasil"
+    );
+  };
 
   return (
     <div
@@ -27,151 +228,225 @@ export default function App() {
 
         <h2>Total Saldo</h2>
 
-        <h1>Rp 8.500.000</h1>
+        <h1>
+          Rp{" "}
+          {totalSaldo.toLocaleString()}
+        </h1>
       </div>
 
       {/* HOME */}
       {page === "home" && (
         <div style={{ padding: 20 }}>
-          <h1>Dashboard Saldo</h1>
-
           {/* TAMBAH AKUN */}
-          <div
-            style={{
-              background: "#1e293b",
-              padding: 20,
-              borderRadius: 20,
-              marginBottom: 20,
-            }}
-          >
-            <h2>Tambah Akun Bank</h2>
+          <Box>
+            <h2>Tambah Akun</h2>
 
             <input
-              placeholder="Nama Akun Baru"
+              placeholder="Nama Akun"
               style={input}
+              value={
+                newAccount.nama
+              }
+              onChange={(e) =>
+                setNewAccount({
+                  ...newAccount,
+                  nama:
+                    e.target.value,
+                })
+              }
             />
 
             <input
               type="number"
               placeholder="Saldo Awal"
               style={input}
+              value={
+                newAccount.saldo
+              }
+              onChange={(e) =>
+                setNewAccount({
+                  ...newAccount,
+                  saldo:
+                    e.target.value,
+                })
+              }
             />
 
-            <button style={button}>
+            <button
+              style={button}
+              onClick={tambahAkun}
+            >
               Tambah Akun
             </button>
-          </div>
+          </Box>
 
           {/* EDIT AKUN */}
-          <div
-            style={{
-              background: "#1e293b",
-              padding: 20,
-              borderRadius: 20,
-              marginBottom: 20,
-            }}
-          >
-            <h2>
-              Edit Nama &
-              Tambah Saldo
-            </h2>
+          <Box>
+            <h2>Edit Akun</h2>
 
-            <select style={input}>
+            <select
+              style={input}
+              value={
+                editAccount.pilih
+              }
+              onChange={(e) =>
+                setEditAccount({
+                  ...editAccount,
+                  pilih:
+                    e.target.value,
+                })
+              }
+            >
               <option>
                 Pilih Akun
               </option>
 
-              <option>
-                BRI Utama
-              </option>
-
-              <option>
-                DANA
-              </option>
-
-              <option>OVO</option>
+              {accounts.map(
+                (item, i) => (
+                  <option
+                    key={i}
+                  >
+                    {item.nama}
+                  </option>
+                )
+              )}
             </select>
 
             <input
-              placeholder="Edit Nama Akun"
+              placeholder="Nama Baru"
               style={input}
+              value={
+                editAccount.nama
+              }
+              onChange={(e) =>
+                setEditAccount({
+                  ...editAccount,
+                  nama:
+                    e.target.value,
+                })
+              }
             />
 
             <input
               type="number"
               placeholder="Tambah Saldo"
               style={input}
+              value={
+                editAccount.saldo
+              }
+              onChange={(e) =>
+                setEditAccount({
+                  ...editAccount,
+                  saldo:
+                    e.target.value,
+                })
+              }
             />
 
-            <button style={button}>
+            <button
+              style={button}
+              onClick={
+                simpanEditAkun
+              }
+            >
               Simpan
-              Perubahan
             </button>
-          </div>
+          </Box>
 
           {/* LIST AKUN */}
-          <Card
-            title="BRI Utama"
-            saldo="Rp 5.000.000"
-          />
-
-          <Card
-            title="DANA"
-            saldo="Rp 2.000.000"
-          />
-
-          <Card
-            title="OVO"
-            saldo="Rp 1.500.000"
-          />
+          {accounts.map(
+            (item, index) => (
+              <Card
+                key={index}
+                title={item.nama}
+                saldo={`Rp ${item.saldo.toLocaleString()}`}
+              />
+            )
+          )}
         </div>
       )}
 
       {/* TRANSAKSI */}
       {page === "transaksi" && (
         <div style={{ padding: 20 }}>
-          <h1>Riwayat Transaksi</h1>
+          <h1>
+            Riwayat
+            Transaksi
+          </h1>
 
-          <Box>
-            <h2>Transfer</h2>
+          {transactions.map(
+            (item, index) => (
+              <Box key={index}>
+                <h2>
+                  {item.jenis}
+                </h2>
 
-            <p>BRI → DANA</p>
+                <h1>
+                  Rp{" "}
+                  {item.nominal.toLocaleString()}
+                </h1>
 
-            <h2
-              style={{
-                color: "#22c55e",
-              }}
-            >
-              + Rp 500.000
-            </h2>
-          </Box>
+                <p>
+                  Dari:
+                  {" "}
+                  {
+                    item.sumber
+                  }
+                </p>
 
-          <Box>
-            <h2>Tarik Tunai</h2>
+                <p>
+                  Ke:
+                  {" "}
+                  {
+                    item.penampung
+                  }
+                </p>
 
-            <p>BRI Utama</p>
+                <p>
+                  Admin:
+                  {" "}
+                  {item.admin}
+                </p>
 
-            <h2
-              style={{
-                color: "#ef4444",
-              }}
-            >
-              - Rp 200.000
-            </h2>
-          </Box>
+                <p>
+                  {
+                    item.ket
+                  }
+                </p>
+
+                <small>
+                  {
+                    item.tanggal
+                  }
+                </small>
+              </Box>
+            )
+          )}
         </div>
       )}
 
-      {/* TAMBAH */}
+      {/* INPUT */}
       {page === "tambah" && (
         <div style={{ padding: 20 }}>
-          <h1>Input Transaksi</h1>
+          <h1>
+            Input
+            Transaksi
+          </h1>
 
           <Box>
-            {/* JENIS */}
-            <select style={input}>
+            <select
+              style={input}
+              value={form.jenis}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  jenis:
+                    e.target.value,
+                })
+              }
+            >
               <option>
-                Pilih Jenis
+                Jenis
                 Transaksi
               </option>
 
@@ -186,83 +461,134 @@ export default function App() {
               <option>
                 Setor Tunai
               </option>
-
-              <option>
-                Pulsa
-              </option>
-
-              <option>
-                Token PLN
-              </option>
             </select>
 
-            {/* NOMINAL */}
             <input
               type="number"
               placeholder="Nominal"
               style={input}
+              value={
+                form.nominal
+              }
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  nominal:
+                    e.target.value,
+                })
+              }
             />
 
             {/* SUMBER */}
-            <select style={input}>
+            <select
+              style={input}
+              value={
+                form.sumber
+              }
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  sumber:
+                    e.target.value,
+                })
+              }
+            >
               <option>
-                Pilih Sumber
+                Sumber
                 Saldo
               </option>
 
-              <option>
-                BRI Utama
-              </option>
-
-              <option>DANA</option>
-
-              <option>OVO</option>
+              {accounts.map(
+                (item, i) => (
+                  <option
+                    key={i}
+                  >
+                    {item.nama}
+                  </option>
+                )
+              )}
             </select>
 
             {/* PENAMPUNG */}
-            <select style={input}>
+            <select
+              style={input}
+              value={
+                form.penampung
+              }
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  penampung:
+                    e.target.value,
+                })
+              }
+            >
               <option>
                 Rekening
                 Penampung
               </option>
 
-              <option>
-                BRI Penampung
-              </option>
-
-              <option>
-                Mandiri
-              </option>
-
-              <option>BCA</option>
+              {accounts.map(
+                (item, i) => (
+                  <option
+                    key={i}
+                  >
+                    {item.nama}
+                  </option>
+                )
+              )}
             </select>
 
             {/* ADMIN */}
-            <select style={input}>
+            <select
+              style={input}
+              value={form.admin}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  admin:
+                    e.target.value,
+                })
+              }
+            >
               <option>
-                Admin Masuk Ke
-                Mana
+                Admin
+                Masuk
               </option>
 
-              <option>
-                Kas Utama
-              </option>
-
-              <option>
-                Saldo Admin
-              </option>
+              {accounts.map(
+                (item, i) => (
+                  <option
+                    key={i}
+                  >
+                    {item.nama}
+                  </option>
+                )
+              )}
             </select>
 
-            {/* KETERANGAN */}
             <textarea
               placeholder="Keterangan"
               style={{
                 ...input,
                 height: 100,
               }}
+              value={form.ket}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  ket:
+                    e.target.value,
+                })
+              }
             />
 
-            <button style={button}>
+            <button
+              style={button}
+              onClick={
+                simpanTransaksi
+              }
+            >
               Simpan
               Transaksi
             </button>
@@ -273,43 +599,27 @@ export default function App() {
       {/* LAPORAN */}
       {page === "laporan" && (
         <div style={{ padding: 20 }}>
-          <h1>Laporan</h1>
-
           <Box>
             <h2>
-              Total Pemasukan
-            </h2>
-
-            <h1
-              style={{
-                color: "#22c55e",
-              }}
-            >
-              Rp 10.000.000
-            </h1>
-          </Box>
-
-          <Box>
-            <h2>
-              Total Pengeluaran
-            </h2>
-
-            <h1
-              style={{
-                color: "#ef4444",
-              }}
-            >
-              Rp 2.000.000
-            </h1>
-          </Box>
-
-          <Box>
-            <h2>
-              Laba Bersih
+              Total
+              Transaksi
             </h2>
 
             <h1>
-              Rp 8.000.000
+              {
+                transactions.length
+              }
+            </h1>
+          </Box>
+
+          <Box>
+            <h2>
+              Total Saldo
+            </h2>
+
+            <h1>
+              Rp{" "}
+              {totalSaldo.toLocaleString()}
             </h1>
           </Box>
         </div>
@@ -318,17 +628,14 @@ export default function App() {
       {/* AKUN */}
       {page === "akun" && (
         <div style={{ padding: 20 }}>
-          <h1>Akun</h1>
-
           <Box>
-            <p>
-              Nama:
+            <h2>
               RAFASYA CELL
-            </p>
+            </h2>
 
             <p>
-              Email:
-              admin@gmail.com
+              Admin
+              BRILink
             </p>
 
             <button
@@ -364,7 +671,7 @@ export default function App() {
         />
 
         <Menu
-          text="Transaksi"
+          text="Riwayat"
           click={() =>
             setPage(
               "transaksi"
@@ -461,7 +768,7 @@ function Menu({
   );
 }
 
-// STYLE INPUT
+// INPUT
 const input = {
   width: "100%",
   padding: 15,
@@ -471,7 +778,7 @@ const input = {
   fontSize: 16,
 };
 
-// STYLE BUTTON
+// BUTTON
 const button = {
   width: "100%",
   padding: 15,
