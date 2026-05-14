@@ -13,6 +13,29 @@ export default function App() {
     password: "12345",
   };
 
+  const [saldoAkun, setSaldoAkun] = useState([
+    {
+      nama: "BRI Utama",
+      saldo: 5000000,
+    },
+    {
+      nama: "Dana",
+      saldo: 2000000,
+    },
+  ]);
+
+  const [jenisTransaksi, setJenisTransaksi] =
+    useState([
+      "Transfer",
+      "Tarik Tunai",
+      "Setor Tunai",
+      "Pulsa",
+      "Token PLN",
+    ]);
+
+  const [filterJenis, setFilterJenis] =
+    useState("");
+
   const [transaksi, setTransaksi] = useState(() => {
     const data = localStorage.getItem("transaksi");
     return data ? JSON.parse(data) : [];
@@ -21,9 +44,13 @@ export default function App() {
   const [form, setForm] = useState({
     tanggal: "",
     jenis: "",
+    akun: "",
     nominal: "",
     keterangan: "",
   });
+
+  const [jenisBaru, setJenisBaru] =
+    useState("");
 
   useEffect(() => {
     localStorage.setItem(
@@ -39,12 +66,23 @@ export default function App() {
     ) {
       setIsLogin(true);
     } else {
-      alert("Username atau password salah");
+      alert("Login gagal");
     }
   };
 
   const logout = () => {
     setIsLogin(false);
+  };
+
+  const tambahJenisTransaksi = () => {
+    if (!jenisBaru) return;
+
+    setJenisTransaksi([
+      ...jenisTransaksi,
+      jenisBaru,
+    ]);
+
+    setJenisBaru("");
   };
 
   const tambahTransaksi = () => {
@@ -59,6 +97,7 @@ export default function App() {
         form.tanggal ||
         new Date().toLocaleDateString(),
       jenis: form.jenis,
+      akun: form.akun,
       nominal: Number(form.nominal),
       keterangan: form.keterangan,
     };
@@ -68,6 +107,7 @@ export default function App() {
     setForm({
       tanggal: "",
       jenis: "",
+      akun: "",
       nominal: "",
       keterangan: "",
     });
@@ -85,6 +125,14 @@ export default function App() {
     (a, b) => a + b.nominal,
     0
   );
+
+  const transaksiFilter =
+    filterJenis === ""
+      ? transaksi
+      : transaksi.filter(
+          (item) =>
+            item.jenis === filterJenis
+        );
 
   if (!isLogin) {
     return (
@@ -109,8 +157,6 @@ export default function App() {
           }}
         >
           <h1>RAFASYA CELL</h1>
-
-          <p>Login Admin</p>
 
           <input
             placeholder="Username"
@@ -143,12 +189,6 @@ export default function App() {
           >
             LOGIN
           </button>
-
-          <p style={{ marginTop: 15 }}>
-            Username: admin
-            <br />
-            Password: 12345
-          </p>
         </div>
       </div>
     );
@@ -176,7 +216,7 @@ export default function App() {
         <h1>RAFASYA CELL</h1>
 
         <h2>
-          Saldo:
+          Total Saldo:
           Rp {totalSaldo.toLocaleString("id-ID")}
         </h2>
 
@@ -191,6 +231,65 @@ export default function App() {
           }}
         >
           Logout
+        </button>
+      </div>
+
+      <div
+        style={{
+          background: "white",
+          padding: 20,
+          borderRadius: 20,
+          marginBottom: 20,
+        }}
+      >
+        <h2>Saldo Akun</h2>
+
+        {saldoAkun.map((item, index) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ddd",
+              padding: 15,
+              borderRadius: 12,
+              marginBottom: 10,
+            }}
+          >
+            <b>{item.nama}</b>
+
+            <p>
+              Rp{" "}
+              {item.saldo.toLocaleString(
+                "id-ID"
+              )}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          background: "white",
+          padding: 20,
+          borderRadius: 20,
+          marginBottom: 20,
+        }}
+      >
+        <h2>Tambah Jenis Transaksi</h2>
+
+        <input
+          placeholder="Jenis transaksi baru"
+          value={jenisBaru}
+          onChange={(e) =>
+            setJenisBaru(e.target.value)
+          }
+          style={inputStyle}
+        />
+
+        <button
+          onClick={tambahJenisTransaksi}
+          style={buttonStyle}
+        >
+          Tambah Jenis
         </button>
       </div>
 
@@ -230,10 +329,34 @@ export default function App() {
             Pilih Jenis
           </option>
 
-          <option>Transfer</option>
-          <option>Tarik Tunai</option>
-          <option>Setor Tunai</option>
-          <option>Pulsa</option>
+          {jenisTransaksi.map(
+            (jenis, index) => (
+              <option key={index}>
+                {jenis}
+              </option>
+            )
+          )}
+        </select>
+
+        <select
+          value={form.akun}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              akun: e.target.value,
+            })
+          }
+          style={inputStyle}
+        >
+          <option value="">
+            Pilih Akun
+          </option>
+
+          {saldoAkun.map((item, index) => (
+            <option key={index}>
+              {item.nama}
+            </option>
+          ))}
         </select>
 
         <input
@@ -276,12 +399,34 @@ export default function App() {
           borderRadius: 20,
         }}
       >
+        <h2>Filter Riwayat</h2>
+
+        <select
+          value={filterJenis}
+          onChange={(e) =>
+            setFilterJenis(e.target.value)
+          }
+          style={inputStyle}
+        >
+          <option value="">
+            Semua Transaksi
+          </option>
+
+          {jenisTransaksi.map(
+            (jenis, index) => (
+              <option key={index}>
+                {jenis}
+              </option>
+            )
+          )}
+        </select>
+
         <h2>Riwayat Transaksi</h2>
 
-        {transaksi.length === 0 ? (
+        {transaksiFilter.length === 0 ? (
           <p>Belum ada transaksi</p>
         ) : (
-          transaksi.map((item) => (
+          transaksiFilter.map((item) => (
             <div
               key={item.id}
               style={{
@@ -292,20 +437,31 @@ export default function App() {
               }}
             >
               <p>
-                <b>Tanggal:</b> {item.tanggal}
+                <b>Tanggal:</b>
+                {item.tanggal}
               </p>
 
               <p>
-                <b>Jenis:</b> {item.jenis}
+                <b>Jenis:</b>
+                {item.jenis}
               </p>
 
               <p>
-                <b>Nominal:</b> Rp
-                {item.nominal.toLocaleString("id-ID")}
+                <b>Akun:</b>
+                {item.akun}
               </p>
 
               <p>
-                <b>Keterangan:</b> {item.keterangan}
+                <b>Nominal:</b>
+                Rp
+                {item.nominal.toLocaleString(
+                  "id-ID"
+                )}
+              </p>
+
+              <p>
+                <b>Keterangan:</b>
+                {item.keterangan}
               </p>
 
               <button
