@@ -745,33 +745,138 @@ export default function App() {
       )}
 
       {/* LAPORAN */}
-      {page === "laporan" && (
-        <div style={{ padding: 20 }}>
-          <Box>
-            <h2>
-              Total
-              Transaksi
-            </h2>
+{page === "laporan" && (
+  <div style={{ padding: 20 }}>
+    {/* TOTAL TRANSAKSI */}
+    <Box>
+      <h2>
+        Total
+        Transaksi
+      </h2>
 
-            <h1>
-              {
-                transactions.length
-              }
-            </h1>
-          </Box>
+      <h1>
+        {
+          transactions.length
+        }
+      </h1>
+    </Box>
 
-          <Box>
-            <h2>
-              Total Saldo
-            </h2>
+    {/* TOTAL SALDO */}
+    <Box>
+      <h2>
+        Total Saldo
+      </h2>
 
-            <h1>
-              Rp{" "}
-              {totalSaldo.toLocaleString()}
-            </h1>
-          </Box>
-        </div>
-      )}
+      <h1>
+        Rp{" "}
+        {totalSaldo.toLocaleString()}
+      </h1>
+    </Box>
+
+    {/* MINGGUAN */}
+    <Box>
+      <h2>
+        Rekapan
+        Mingguan
+      </h2>
+
+      <h1>
+        Rp{" "}
+        {transactions
+          .reduce(
+            (a, b) =>
+              a +
+              b.nominal,
+            0
+          )
+          .toLocaleString()}
+      </h1>
+    </Box>
+
+    {/* BULANAN */}
+    <Box>
+      <h2>
+        Rekapan
+        Bulanan
+      </h2>
+
+      <h1>
+        Rp{" "}
+        {transactions
+          .reduce(
+            (a, b) =>
+              a +
+              b.nominal,
+            0
+          )
+          .toLocaleString()}
+      </h1>
+    </Box>
+
+    {/* TAHUNAN */}
+    <Box>
+      <h2>
+        Rekapan
+        Tahunan
+      </h2>
+
+      <h1>
+        Rp{" "}
+        {transactions
+          .reduce(
+            (a, b) =>
+              a +
+              b.nominal,
+            0
+          )
+          .toLocaleString()}
+      </h1>
+    </Box>
+
+    {/* TRANSAKSI ATM */}
+    <Box>
+      <h2>
+        Jumlah
+        Transaksi ATM
+      </h2>
+
+      <h1>
+        {
+          transactions.filter(
+            (item) =>
+              item.jenis ===
+              "ATM"
+          ).length
+        }
+      </h1>
+    </Box>
+
+    {/* TOTAL ATM */}
+    <Box>
+      <h2>
+        Total Nominal
+        ATM
+      </h2>
+
+      <h1>
+        Rp{" "}
+        {transactions
+          .filter(
+            (item) =>
+              item.jenis ===
+              "ATM"
+          )
+          .reduce(
+            (a, b) =>
+              a +
+              b.nominal,
+            0
+          )
+          .toLocaleString()}
+      </h1>
+    </Box>
+  </div>
+)}
 
       {/* AKUN */}
       {page === "akun" && (
