@@ -1,336 +1,727 @@
-import React, { useState } from "react";
+const menuList = [
+  {
+    id: "dashboard",
+    nama: "Dashboard",
+  },
+  {
+    id: "transaksi",
+    nama: "Transaksi",
+  },
+  {
+    id: "riwayat",
+    nama: "Riwayat",
+  },
+  {
+    id: "akun",
+    nama: "Akun",
+  },
+  {
+    id: "laporan",
+    nama: "Laporan",
+  },
+  {
+    id: "qris",
+    nama: "QRIS",
+  },
+  {
+    id: "pelanggan",
+    nama: "Pelanggan",
+  },
+  {
+    id: "hutang",
+    nama: "Hutang",
+  },
+  {
+    id: "backup",
+    nama: "Backup",
+  },
+  {
+    id: "pengaturan",
+    nama: "Pengaturan",
+  },
+  {
+    id: "profil",
+    nama: "Profil",
+  },
+];
+{halaman === "laporan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Laporan Keuangan</h1>
 
-export default function App() {
-  // DATA AKUN
-  const [akun, setAkun] = useState([
-    {
-      nama: "BRI Utama",
-      saldo: 5000000,
-    },
-    {
-      nama: "Dana",
-      saldo: 2000000,
-    },
-    {
-      nama: "OVO",
-      saldo: 1500000,
-    },
-  ]);
-
-  // DATA TRANSAKSI
-  const [transaksi, setTransaksi] =
-    useState([]);
-
-  // FORM
-  const [form, setForm] = useState({
-    tipe: "Transfer",
-    nominal: "",
-    akunSumber: "BRI Utama",
-    rekeningPenampung: "Dana",
-    keterangan: "",
-  });
-
-  // SIMPAN TRANSAKSI
-  const simpanTransaksi = () => {
-    if (!form.nominal) {
-      alert("Masukkan nominal");
-      return;
-    }
-
-    const nominal = parseInt(
-      form.nominal
-    );
-
-    // UPDATE SALDO
-    const updateSaldo = akun.map(
-      (item) => {
-        // AKUN SUMBER BERKURANG
-        if (
-          item.nama === form.akunSumber
-        ) {
-          return {
-            ...item,
-            saldo: item.saldo - nominal,
-          };
-        }
-
-        // REKENING PENAMPUNG BERTAMBAH
-        if (
-          item.nama ===
-          form.rekeningPenampung
-        ) {
-          return {
-            ...item,
-            saldo: item.saldo + nominal,
-          };
-        }
-
-        return item;
-      }
-    );
-
-    setAkun(updateSaldo);
-
-    // SIMPAN RIWAYAT
-    setTransaksi([
-      {
-        ...form,
-        nominal,
-        tanggal:
-          new Date().toLocaleString(),
-      },
-      ...transaksi,
-    ]);
-
-    // RESET FORM
-    setForm({
-      tipe: "Transfer",
-      nominal: "",
-      akunSumber: akun[0].nama,
-      rekeningPenampung:
-        akun[1].nama,
-      keterangan: "",
-    });
-  };
-
-  // TOTAL SALDO
-  const totalSaldo = akun.reduce(
-    (a, b) => a + b.saldo,
-    0
-  );
-
-  return (
-    <div
-      style={{
-        background: "#0f172a",
-        minHeight: "100vh",
-        padding: 20,
-        color: "white",
-        fontFamily: "Arial",
-      }}
-    >
-      {/* HEADER */}
-      <div
-        style={{
-          background:
-            "linear-gradient(135deg,#2563eb,#06b6d4)",
-          padding: 25,
-          borderRadius: 30,
-          marginBottom: 20,
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 40,
-          }}
-        >
-          BRILink BukuKas
-        </h1>
-
+      <div style={laporanCardHijau}>
         <h2>Total Saldo</h2>
 
         <h1>
-          Rp{" "}
-          {totalSaldo.toLocaleString()}
+          Rp {totalSaldo.toLocaleString()}
         </h1>
       </div>
 
-      {/* SALDO AKUN */}
-      <div
-        style={{
-          background: "#1e293b",
-          padding: 20,
-          borderRadius: 25,
-          marginBottom: 20,
-        }}
-      >
-        <h1>Saldo Akun</h1>
+      <div style={laporanCardMerah}>
+        <h2>Total Transaksi</h2>
 
-        {akun.map((item, index) => (
-          <div
-            key={index}
-            style={{
-              background: "#334155",
-              padding: 20,
-              borderRadius: 20,
-              marginTop: 15,
-            }}
-          >
-            <h2>{item.nama}</h2>
-
-            <h3>
-              Rp{" "}
-              {item.saldo.toLocaleString()}
-            </h3>
-          </div>
-        ))}
-      </div>
-
-      {/* FORM TRANSAKSI */}
-      <div
-        style={{
-          background: "#1e293b",
-          padding: 20,
-          borderRadius: 25,
-          marginBottom: 20,
-        }}
-      >
-        <h1>Transfer Saldo</h1>
-
-        {/* NOMINAL */}
-        <input
-          type="number"
-          placeholder="Nominal"
-          value={form.nominal}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              nominal: e.target.value,
-            })
-          }
-          style={inputStyle}
-        />
-
-        {/* AKUN SUMBER */}
-        <select
-          value={form.akunSumber}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              akunSumber:
-                e.target.value,
-            })
-          }
-          style={inputStyle}
-        >
-          {akun.map((item, index) => (
-            <option key={index}>
-              {item.nama}
-            </option>
-          ))}
-        </select>
-
-        {/* REKENING PENAMPUNG */}
-        <select
-          value={
-            form.rekeningPenampung
-          }
-          onChange={(e) =>
-            setForm({
-              ...form,
-              rekeningPenampung:
-                e.target.value,
-            })
-          }
-          style={inputStyle}
-        >
-          {akun.map((item, index) => (
-            <option key={index}>
-              {item.nama}
-            </option>
-          ))}
-        </select>
-
-        {/* KETERANGAN */}
-        <input
-          placeholder="Keterangan"
-          value={form.keterangan}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              keterangan:
-                e.target.value,
-            })
-          }
-          style={inputStyle}
-        />
-
-        {/* BUTTON */}
-        <button
-          onClick={simpanTransaksi}
-          style={{
-            width: "100%",
-            background: "#22c55e",
-            color: "white",
-            border: "none",
-            padding: 18,
-            marginTop: 20,
-            borderRadius: 12,
-            fontSize: 18,
-          }}
-        >
-          Simpan Transaksi
-        </button>
-      </div>
-
-      {/* RIWAYAT */}
-      <div
-        style={{
-          background: "#1e293b",
-          padding: 20,
-          borderRadius: 25,
-        }}
-      >
-        <h1>Riwayat Transaksi</h1>
-
-        {transaksi.map(
-          (item, index) => (
-            <div
-              key={index}
-              style={{
-                background:
-                  "#334155",
-                padding: 20,
-                borderRadius: 20,
-                marginTop: 15,
-              }}
-            >
-              <h2>
-                Transfer Saldo
-              </h2>
-
-              <h3>
-                Rp{" "}
-                {item.nominal.toLocaleString()}
-              </h3>
-
-              <p>
-                Dari:
-                {" "}
-                {item.akunSumber}
-              </p>
-
-              <p>
-                Ke:
-                {" "}
-                {
-                  item.rekeningPenampung
-                }
-              </p>
-
-              <p>
-                Keterangan:
-                {" "}
-                {item.keterangan}
-              </p>
-
-              <small>
-                {item.tanggal}
-              </small>
-            </div>
-          )
-        )}
+        <h1>{transaksi.length}</h1>
       </div>
     </div>
-  );
-}
+  </div>
+)}
+HALAMAN QRIS
+{halaman === "qris" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>QRIS Payment</h1>
 
-// STYLE INPUT
-const inputStyle = {
+      <div
+        style={{
+          background: "white",
+          height: 250,
+          borderRadius: 20,
+          marginTop: 20,
+        }}
+      ></div>
+
+      <button style={buttonBiru}>
+        Scan QRIS
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN PELANGGAN
+{halaman === "pelanggan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Data Pelanggan</h1>
+
+      <input
+        placeholder="Nama pelanggan"
+        style={inputStyle}
+      />
+
+      <input
+        placeholder="Nomor HP"
+        style={inputStyle}
+      />
+
+      <button style={buttonHijau}>
+        Simpan Pelanggan
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN HUTANG
+{halaman === "hutang" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Data Hutang</h1>
+
+      <input
+        placeholder="Nama"
+        style={inputStyle}
+      />
+
+      <input
+        placeholder="Nominal"
+        style={inputStyle}
+      />
+
+      <button style={buttonMerah}>
+        Simpan Hutang
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN BACKUP
+{halaman === "backup" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Backup Data</h1>
+
+      <button style={buttonBiru}>
+        Backup Sekarang
+      </button>
+
+      <button style={buttonHijau}>
+        Restore Data
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN PENGATURAN
+{halaman === "pengaturan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Pengaturan</h1>
+
+      <button style={buttonBiru}>
+        Dark Mode
+      </button>
+
+      <button style={buttonHijau}>
+        Notifikasi
+      </button>
+
+      <button style={buttonMerah}>
+        Logout
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN PROFIL
+{halaman === "profil" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Profil Pengguna</h1>
+
+      <div
+        style={{
+          background: "#334155",
+          padding: 30,
+          borderRadius: 20,
+          marginTop: 20,
+        }}
+      >
+        <h2>RAFASYA CELL</h2>
+
+        <p>Admin BRILink</p>
+
+        <p>Status: Aktif</p>
+      </div>
+    </div>
+  </div>
+)}
+
+Tambahkan style ini DI BAWAH kode:
+
+const buttonBiru = {
   width: "100%",
   padding: 15,
-  marginTop: 15,
-  borderRadius: 10,
   border: "none",
-  fontSize: 16,
+  background: "#2563eb",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
 };
+
+const buttonHijau = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#16a34a",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonMerah = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#dc2626",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const laporanCardHijau = {
+  background: "#16a34a",
+  padding: 25,
+  borderRadius: 20,
+  marginTop: 20,
+};
+
+const laporanCardMerah = {
+  background: "#dc2626",
+  padding: 25,
+  borderRadius: 20,
+  marginTop: 20,
+};
+
+Setelah ditambahkan, aplikasi akan memiliki:
+
+Dashboard
+Transaksi
+Riwayat
+Akun
+Laporan
+QRIS
+Pelanggan
+Hutang
+Backup
+Pengaturan
+Profil
+
+Total: 11 halaman fitur dengan template modern BRILink dark mode.
+
+Caranya 
+
+Cara menambahkan halaman tambahan ke aplikasi:
+
+1. Buka file
+src/App.jsx
+2. Cari bagian:
+const menuList = [
+
+Lalu ganti dengan kode menu lengkap yang saya kirim tadi.
+
+3. Cari bagian halaman terakhir
+
+Contoh biasanya ada:
+
+{halaman === "riwayat" && (
+4. Tempel kode halaman baru DI BAWAHNYA
+
+Urutannya:
+
+{halaman === "riwayat" && (...)}
+
+{halaman === "laporan" && (...)}
+
+{halaman === "qris" && (...)}
+
+{halaman === "pelanggan" && (...)}
+
+{halaman === "hutang" && (...)}
+
+{halaman === "backup" && (...)}
+
+{halaman === "pengaturan" && (...)}
+
+{halaman === "profil" && (...)}
+5. Scroll PALING BAWAH file
+
+Cari:
+
+const inputStyle = {
+
+Tempel style tambahan DI BAWAHNYA:
+
+const buttonBiru = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#2563eb",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonHijau = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#16a34a",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonMerah = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#dc2626",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+ {halaman === "qris" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>QRIS Payment</h1>
+
+      <div
+        style={{
+          background: "white",
+          height: 250,
+          borderRadius: 20,
+          marginTop: 20,
+        }}
+      ></div>
+
+      <button style={buttonBiru}>
+        Scan QRIS
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN PELANGGAN
+{halaman === "pelanggan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Data Pelanggan</h1>
+
+      <input
+        placeholder="Nama pelanggan"
+        style={inputStyle}
+      />
+
+      <input
+        placeholder="Nomor HP"
+        style={inputStyle}
+      />
+
+      <button style={buttonHijau}>
+        Simpan Pelanggan
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN HUTANG
+{halaman === "hutang" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Data Hutang</h1>
+
+      <input
+        placeholder="Nama"
+        style={inputStyle}
+      />
+
+      <input
+        placeholder="Nominal"
+        style={inputStyle}
+      />
+
+      <button style={buttonMerah}>
+        Simpan Hutang
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN BACKUP
+{halaman === "backup" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Backup Data</h1>
+
+      <button style={buttonBiru}>
+        Backup Sekarang
+      </button>
+
+      <button style={buttonHijau}>
+        Restore Data
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN PENGATURAN
+{halaman === "pengaturan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Pengaturan</h1>
+
+      <button style={buttonBiru}>
+        Dark Mode
+      </button>
+
+      <button style={buttonHijau}>
+        Notifikasi
+      </button>
+
+      <button style={buttonMerah}>
+        Logout
+      </button>
+    </div>
+  </div>
+)}
+HALAMAN PROFIL
+{halaman === "profil" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Profil Pengguna</h1>
+
+      <div
+        style={{
+          background: "#334155",
+          padding: 30,
+          borderRadius: 20,
+          marginTop: 20,
+        }}
+      >
+        <h2>RAFASYA CELL</h2>
+
+        <p>Admin BRILink</p>
+
+        <p>Status: Aktif</p>
+      </div>
+    </div>
+  </div>
+)}
+
+Tambahkan style ini DI BAWAH kode:
+
+const buttonBiru = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#2563eb",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonHijau = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#16a34a",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonMerah = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#dc2626",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const laporanCardHijau = {
+  background: "#16a34a",
+  padding: 25,
+  borderRadius: 20,
+  marginTop: 20,
+};
+
+const laporanCardMerah = {
+  background: "#dc2626",
+  padding: 25,
+  borderRadius: 20,
+  marginTop: 20,
+};
+
+Setelah ditambahkan, aplikasi akan memiliki:
+
+Dashboard
+Transaksi
+Riwayat
+Akun
+Laporan
+QRIS
+Pelanggan
+Hutang
+Backup
+Pengaturan
+Profil
+
+Total: 11 halaman fitur dengan template modern BRILink dark mode.
+
+Caranya 
+
+Cara menambahkan halaman tambahan ke aplikasi:
+
+1. Buka file
+src/App.jsx
+2. Cari bagian:
+const menuList = [
+
+Lalu ganti dengan kode menu lengkap yang saya kirim tadi.
+
+3. Cari bagian halaman terakhir
+
+Contoh biasanya ada:
+
+{halaman === "riwayat" && (
+4. Tempel kode halaman baru DI BAWAHNYA
+
+Urutannya:
+
+{halaman === "riwayat" && (...)}
+
+{halaman === "laporan" && (...)}
+
+{halaman === "qris" && (...)}
+
+{halaman === "pelanggan" && (...)}
+
+{halaman === "hutang" && (...)}
+
+{halaman === "backup" && (...)}
+
+{halaman === "pengaturan" && (...)}
+
+{halaman === "profil" && (...)}
+5. Scroll PALING BAWAH file
+
+Cari:
+
+const inputStyle = {
+
+Tempel style tambahan DI BAWAHNYA:
+
+const buttonBiru = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#2563eb",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonHijau = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#16a34a",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonMerah = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#dc2626",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+{halaman === "pelanggan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Data Pelanggan</h1>
+
+      <input
+        placeholder="Nama pelanggan"
+        style={inputStyle}
+      />
+
+      <input
+        placeholder="Nomor HP"
+        style={inputStyle}
+      />
+
+      <button style={buttonHijau}>
+        Simpan Pelanggan
+      </button>
+    </div>
+  </div>
+)}
+{halaman === "hutang" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Data Hutang</h1>
+
+      <input
+        placeholder="Nama"
+        style={inputStyle}
+      />
+
+      <input
+        placeholder="Nominal"
+        style={inputStyle}
+      />
+
+      <button style={buttonMerah}>
+        Simpan Hutang
+      </button>
+    </div>
+  </div> 
+  
+)}
+ {halaman === "backup" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Backup Data</h1>
+
+      <button style={buttonBiru}>
+        Backup Sekarang
+      </button>
+
+      <button style={buttonHijau}>
+        Restore Data
+      </button>
+    </div>
+  </div>
+)} 
+ {halaman === "pengaturan" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Pengaturan</h1>
+
+      <button style={buttonBiru}>
+        Dark Mode
+      </button>
+
+      <button style={buttonHijau}>
+        Notifikasi
+      </button>
+
+      <button style={buttonMerah}>
+        Logout
+      </button>
+    </div>
+  </div>
+)}
+ {halaman === "profil" && (
+  <div style={{ padding: 20 }}>
+    <div style={box}>
+      <h1>Profil Pengguna</h1>
+
+      <div
+        style={{
+          background: "#334155",
+          padding: 30,
+          borderRadius: 20,
+          marginTop: 20,
+        }}
+      >
+        <h2>RAFASYA CELL</h2>
+
+        <p>Admin BRILink</p>
+
+        <p>Status: Aktif</p>
+      </div>
+    </div>
+  </div>
+)} 
+ const buttonBiru = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#2563eb",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonHijau = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#16a34a",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const buttonMerah = {
+  width: "100%",
+  padding: 15,
+  border: "none",
+  background: "#dc2626",
+  color: "white",
+  borderRadius: 12,
+  marginTop: 15,
+};
+
+const laporanCardHijau = {
+  background: "#16a34a",
+  padding: 25,
+  borderRadius: 20,
+  marginTop: 20,
+};
+
+const laporanCardMerah = {
+  background: "#dc2626",
+  padding: 25,
+  borderRadius: 20,
+  marginTop: 20,
+};
+ 
