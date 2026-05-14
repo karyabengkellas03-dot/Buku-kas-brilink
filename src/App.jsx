@@ -2,53 +2,46 @@ import React, { useState } from "react";
 
 export default function App() {
   const [akun, setAkun] = useState([
-    { nama: "BRI Utama", saldo: 5000000 },
-    { nama: "Dana", saldo: 2000000 },
-    { nama: "OVO", saldo: 1500000 },
+    {
+      nama: "BRI Utama",
+      saldo: 5000000,
+    },
+    {
+      nama: "Dana",
+      saldo: 2000000,
+    },
   ]);
-
-  const [jenisList, setJenisList] = useState([
-    "Transfer",
-    "Tarik Tunai",
-    "Setor Tunai",
-    "Pulsa",
-    "Topup Ewallet",
-  ]);
-
-  const [filter, setFilter] = useState("Semua");
 
   const [transaksi, setTransaksi] = useState([]);
 
-  const [jenisBaru, setJenisBaru] = useState("");
-
   const [form, setForm] = useState({
+    tipe: "Pemasukan",
     jenis: "Transfer",
     nominal: "",
     akun: "BRI Utama",
     keterangan: "",
   });
 
-  const totalSaldo = akun.reduce(
-    (a, b) => a + b.saldo,
-    0
-  );
-
   const simpanTransaksi = () => {
     if (!form.nominal) return;
 
     const nominal = Number(form.nominal);
 
-    const updateAkun = akun.map((item) => {
+    const updateSaldo = akun.map((item) => {
       if (item.nama === form.akun) {
         return {
           ...item,
-          saldo: item.saldo - nominal,
+          saldo:
+            form.tipe === "Pemasukan"
+              ? item.saldo + nominal
+              : item.saldo - nominal,
         };
       }
+
       return item;
     });
 
-    setAkun(updateAkun);
+    setAkun(updateSaldo);
 
     setTransaksi([
       {
@@ -60,6 +53,7 @@ export default function App() {
     ]);
 
     setForm({
+      tipe: "Pemasukan",
       jenis: "Transfer",
       nominal: "",
       akun: "BRI Utama",
@@ -67,25 +61,26 @@ export default function App() {
     });
   };
 
-  const tambahJenis = () => {
-    if (!jenisBaru) return;
+  const totalSaldo = akun.reduce(
+    (a, b) => a + b.saldo,
+    0
+  );
 
-    setJenisList([...jenisList, jenisBaru]);
+  const totalPemasukan = transaksi
+    .filter((item) => item.tipe === "Pemasukan")
+    .reduce((a, b) => a + b.nominal, 0);
 
-    setJenisBaru("");
-  };
+  const totalPengeluaran = transaksi
+    .filter((item) => item.tipe === "Pengeluaran")
+    .reduce((a, b) => a + b.nominal, 0);
 
-  const transaksiFilter =
-    filter === "Semua"
-      ? transaksi
-      : transaksi.filter(
-          (item) => item.jenis === filter
-        );
+  const labaBersih =
+    totalPemasukan - totalPengeluaran;
 
   return (
     <div
       style={{
-        background: "#0b1220",
+        background: "#0f172a",
         minHeight: "100vh",
         padding: 20,
         color: "white",
@@ -96,39 +91,24 @@ export default function App() {
       <div
         style={{
           background:
-            "linear-gradient(135deg,#1d4ed8,#0ea5e9)",
+            "linear-gradient(135deg,#2563eb,#06b6d4)",
           padding: 25,
           borderRadius: 30,
           marginBottom: 20,
         }}
       >
-        <h1 style={{ fontSize: 45 }}>
+        <h1 style={{ fontSize: 40 }}>
           BRILink BukuKas
         </h1>
 
-        <h2 style={{ marginTop: 30 }}>
-          Total Saldo:
-        </h2>
+        <h2>Total Saldo</h2>
 
         <h1>
           Rp {totalSaldo.toLocaleString()}
         </h1>
-
-        <button
-          style={{
-            marginTop: 20,
-            background: "white",
-            border: "none",
-            padding: 15,
-            borderRadius: 12,
-            fontWeight: "bold",
-          }}
-        >
-          Logout
-        </button>
       </div>
 
-      {/* STATISTIK */}
+      {/* DASHBOARD */}
       <div
         style={{
           display: "grid",
@@ -139,38 +119,65 @@ export default function App() {
       >
         <div
           style={{
+            background: "#16a34a",
+            padding: 20,
+            borderRadius: 20,
+          }}
+        >
+          <h3>Pemasukan</h3>
+
+          <h2>
+            Rp{" "}
+            {totalPemasukan.toLocaleString()}
+          </h2>
+        </div>
+
+        <div
+          style={{
+            background: "#dc2626",
+            padding: 20,
+            borderRadius: 20,
+          }}
+        >
+          <h3>Pengeluaran</h3>
+
+          <h2>
+            Rp{" "}
+            {totalPengeluaran.toLocaleString()}
+          </h2>
+        </div>
+
+        <div
+          style={{
             background: "#2563eb",
+            padding: 20,
+            borderRadius: 20,
+          }}
+        >
+          <h3>Laba Bersih</h3>
+
+          <h2>
+            Rp {labaBersih.toLocaleString()}
+          </h2>
+        </div>
+
+        <div
+          style={{
+            background: "#9333ea",
             padding: 20,
             borderRadius: 20,
           }}
         >
           <h3>Total Transaksi</h3>
 
-          <h1>{transaksi.length}</h1>
-        </div>
-
-        <div
-          style={{
-            background: "#16a34a",
-            padding: 20,
-            borderRadius: 20,
-          }}
-        >
-          <h3>Total Nominal</h3>
-
-          <h1>
-            Rp{" "}
-            {transaksi
-              .reduce((a, b) => a + b.nominal, 0)
-              .toLocaleString()}
-          </h1>
+          <h2>{transaksi.length}</h2>
         </div>
       </div>
 
       {/* SALDO AKUN */}
       <div
         style={{
-          background: "#111827",
+          background: "#1e293b",
           padding: 20,
           borderRadius: 25,
           marginBottom: 20,
@@ -182,7 +189,7 @@ export default function App() {
           <div
             key={index}
             style={{
-              background: "#1f2937",
+              background: "#334155",
               padding: 20,
               borderRadius: 20,
               marginTop: 15,
@@ -197,10 +204,10 @@ export default function App() {
         ))}
       </div>
 
-      {/* TAMBAH TRANSAKSI */}
+      {/* FORM */}
       <div
         style={{
-          background: "#111827",
+          background: "#1e293b",
           padding: 20,
           borderRadius: 25,
           marginBottom: 20,
@@ -209,6 +216,26 @@ export default function App() {
         <h1>Tambah Transaksi</h1>
 
         <select
+          value={form.tipe}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              tipe: e.target.value,
+            })
+          }
+          style={{
+            width: "100%",
+            padding: 15,
+            marginTop: 15,
+            borderRadius: 10,
+          }}
+        >
+          <option>Pemasukan</option>
+          <option>Pengeluaran</option>
+        </select>
+
+        <input
+          placeholder="Jenis transaksi"
           value={form.jenis}
           onChange={(e) =>
             setForm({
@@ -220,15 +247,9 @@ export default function App() {
             width: "100%",
             padding: 15,
             marginTop: 15,
-            borderRadius: 12,
+            borderRadius: 10,
           }}
-        >
-          {jenisList.map((item, index) => (
-            <option key={index}>
-              {item}
-            </option>
-          ))}
-        </select>
+        />
 
         <input
           type="number"
@@ -244,7 +265,7 @@ export default function App() {
             width: "100%",
             padding: 15,
             marginTop: 15,
-            borderRadius: 12,
+            borderRadius: 10,
           }}
         />
 
@@ -260,7 +281,7 @@ export default function App() {
             width: "100%",
             padding: 15,
             marginTop: 15,
-            borderRadius: 12,
+            borderRadius: 10,
           }}
         >
           {akun.map((item, index) => (
@@ -283,7 +304,7 @@ export default function App() {
             width: "100%",
             padding: 15,
             marginTop: 15,
-            borderRadius: 12,
+            borderRadius: 10,
           }}
         />
 
@@ -291,12 +312,12 @@ export default function App() {
           onClick={simpanTransaksi}
           style={{
             width: "100%",
+            background: "#22c55e",
+            color: "white",
+            border: "none",
             padding: 18,
             marginTop: 20,
-            border: "none",
-            borderRadius: 15,
-            background: "#2563eb",
-            color: "white",
+            borderRadius: 12,
             fontSize: 18,
           }}
         >
@@ -304,95 +325,21 @@ export default function App() {
         </button>
       </div>
 
-      {/* TAMBAH JENIS */}
-      <div
-        style={{
-          background: "#111827",
-          padding: 20,
-          borderRadius: 25,
-          marginBottom: 20,
-        }}
-      >
-        <h1>Tambah Jenis Transaksi</h1>
-
-        <input
-          placeholder="Jenis transaksi baru"
-          value={jenisBaru}
-          onChange={(e) =>
-            setJenisBaru(e.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: 15,
-            marginTop: 15,
-            borderRadius: 12,
-          }}
-        />
-
-        <button
-          onClick={tambahJenis}
-          style={{
-            width: "100%",
-            padding: 18,
-            marginTop: 20,
-            border: "none",
-            borderRadius: 15,
-            background: "#22c55e",
-            color: "white",
-          }}
-        >
-          Tambah Jenis
-        </button>
-      </div>
-
-      {/* FILTER */}
-      <div
-        style={{
-          background: "#111827",
-          padding: 20,
-          borderRadius: 25,
-          marginBottom: 20,
-        }}
-      >
-        <h1>Filter Transaksi</h1>
-
-        <select
-          value={filter}
-          onChange={(e) =>
-            setFilter(e.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: 15,
-            marginTop: 15,
-            borderRadius: 12,
-          }}
-        >
-          <option>Semua</option>
-
-          {jenisList.map((item, index) => (
-            <option key={index}>
-              {item}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* RIWAYAT */}
       <div
         style={{
-          background: "#111827",
+          background: "#1e293b",
           padding: 20,
           borderRadius: 25,
         }}
       >
         <h1>Riwayat Transaksi</h1>
 
-        {transaksiFilter.map((item, index) => (
+        {transaksi.map((item, index) => (
           <div
             key={index}
             style={{
-              background: "#1f2937",
+              background: "#334155",
               padding: 20,
               borderRadius: 20,
               marginTop: 15,
@@ -404,6 +351,8 @@ export default function App() {
               Rp{" "}
               {item.nominal.toLocaleString()}
             </h3>
+
+            <p>Tipe: {item.tipe}</p>
 
             <p>Akun: {item.akun}</p>
 
@@ -418,4 +367,4 @@ export default function App() {
       </div>
     </div>
   );
-                    }
+      }
