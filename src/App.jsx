@@ -5,21 +5,36 @@ export default function App() {
   const [page, setPage] = useState("home");
 
   // DATA AKUN
-  const [accounts, setAccounts] =
-    useState([
-      {
-        nama: "BRI Utama",
-        saldo: 5000000,
-      },
-      {
-        nama: "DANA",
-        saldo: 2000000,
-      },
-      {
-        nama: "OVO",
-        saldo: 1500000,
-      },
-    ]);
+  const [accounts, setAccounts] = useState([
+    {
+      nama: "BRI Utama",
+      saldo: 5000000,
+    },
+    {
+      nama: "DANA",
+      saldo: 2000000,
+    },
+    {
+      nama: "OVO",
+      saldo: 1500000,
+    },
+  ]);
+
+  // JENIS TRANSAKSI
+  const [jenisList, setJenisList] = useState([
+    {
+      nama: "Transfer",
+      admin: 2500,
+    },
+    {
+      nama: "Tarik Tunai",
+      admin: 5000,
+    },
+  ]);
+
+  // RIWAYAT
+  const [transactions, setTransactions] =
+    useState([]);
 
   // FORM TAMBAH AKUN
   const [newAccount, setNewAccount] =
@@ -36,19 +51,23 @@ export default function App() {
       saldo: "",
     });
 
-  // DATA TRANSAKSI
-  const [transactions, setTransactions] =
-    useState([]);
-
   // FORM TRANSAKSI
   const [form, setForm] = useState({
     jenis: "",
     nominal: "",
+    potonganBank: "",
     sumber: "",
     penampung: "",
-    admin: "",
+    adminMasuk: "",
     ket: "",
   });
+
+  // FORM JENIS
+  const [newJenis, setNewJenis] =
+    useState({
+      nama: "",
+      admin: "",
+    });
 
   // TOTAL SALDO
   const totalSaldo =
@@ -116,11 +135,38 @@ export default function App() {
     });
   };
 
+  // TAMBAH JENIS
+  const tambahJenis = () => {
+    if (
+      !newJenis.nama ||
+      !newJenis.admin
+    ) {
+      alert("Isi data");
+      return;
+    }
+
+    setJenisList([
+      ...jenisList,
+      {
+        nama: newJenis.nama,
+        admin: parseInt(
+          newJenis.admin
+        ),
+      },
+    ]);
+
+    setNewJenis({
+      nama: "",
+      admin: "",
+    });
+  };
+
   // SIMPAN TRANSAKSI
   const simpanTransaksi = () => {
     if (
       !form.nominal ||
-      !form.sumber
+      !form.sumber ||
+      !form.jenis
     ) {
       alert(
         "Lengkapi transaksi"
@@ -131,6 +177,25 @@ export default function App() {
     const nominal = parseInt(
       form.nominal
     );
+
+    const potonganBank =
+      parseInt(
+        form.potonganBank || 0
+      );
+
+    // ADMIN OTOMATIS
+    const jenisDipilih =
+      jenisList.find(
+        (j) =>
+          j.nama === form.jenis
+      );
+
+    const biayaAdmin =
+      jenisDipilih?.admin || 0;
+
+    // TOTAL KELUAR
+    const totalKeluar =
+      nominal + potonganBank;
 
     // UPDATE SALDO
     const updateSaldo =
@@ -144,7 +209,7 @@ export default function App() {
             ...item,
             saldo:
               item.saldo -
-              nominal,
+              totalKeluar,
           };
         }
 
@@ -161,15 +226,16 @@ export default function App() {
           };
         }
 
-        // ADMIN BERTAMBAH
+        // ADMIN MASUK
         if (
           item.nama ===
-          form.admin
+          form.adminMasuk
         ) {
           return {
             ...item,
             saldo:
-              item.saldo + 2500,
+              item.saldo +
+              biayaAdmin,
           };
         }
 
@@ -183,19 +249,23 @@ export default function App() {
       {
         ...form,
         nominal,
+        potonganBank,
+        admin:
+          biayaAdmin,
         tanggal:
           new Date().toLocaleString(),
       },
       ...transactions,
     ]);
 
-    // RESET FORM
+    // RESET
     setForm({
       jenis: "",
       nominal: "",
+      potonganBank: "",
       sumber: "",
       penampung: "",
-      admin: "",
+      adminMasuk: "",
       ket: "",
     });
 
@@ -303,9 +373,7 @@ export default function App() {
 
               {accounts.map(
                 (item, i) => (
-                  <option
-                    key={i}
-                  >
+                  <option key={i}>
                     {item.nama}
                   </option>
                 )
@@ -366,13 +434,10 @@ export default function App() {
         </div>
       )}
 
-      {/* TRANSAKSI */}
+      {/* RIWAYAT */}
       {page === "transaksi" && (
         <div style={{ padding: 20 }}>
-          <h1>
-            Riwayat
-            Transaksi
-          </h1>
+          <h1>Riwayat</h1>
 
           {transactions.map(
             (item, index) => (
@@ -403,9 +468,16 @@ export default function App() {
                 </p>
 
                 <p>
+                  Potongan
+                  Bank:
+                  Rp{" "}
+                  {item.potonganBank?.toLocaleString()}
+                </p>
+
+                <p>
                   Admin:
-                  {" "}
-                  {item.admin}
+                  Rp{" "}
+                  {item.admin.toLocaleString()}
                 </p>
 
                 <p>
@@ -425,7 +497,7 @@ export default function App() {
         </div>
       )}
 
-      {/* INPUT */}
+      {/* INPUT TRANSAKSI */}
       {page === "tambah" && (
         <div style={{ padding: 20 }}>
           <h1>
@@ -434,6 +506,7 @@ export default function App() {
           </h1>
 
           <Box>
+            {/* JENIS */}
             <select
               style={input}
               value={form.jenis}
@@ -446,23 +519,19 @@ export default function App() {
               }
             >
               <option>
-                Jenis
-                Transaksi
+                Pilih Jenis
               </option>
 
-              <option>
-                Transfer
-              </option>
-
-              <option>
-                Tarik Tunai
-              </option>
-
-              <option>
-                Setor Tunai
-              </option>
+              {jenisList.map(
+                (item, i) => (
+                  <option key={i}>
+                    {item.nama}
+                  </option>
+                )
+              )}
             </select>
 
+            {/* NOMINAL */}
             <input
               type="number"
               placeholder="Nominal"
@@ -474,6 +543,23 @@ export default function App() {
                 setForm({
                   ...form,
                   nominal:
+                    e.target.value,
+                })
+              }
+            />
+
+            {/* POTONGAN BANK */}
+            <input
+              type="number"
+              placeholder="Potongan Bank"
+              style={input}
+              value={
+                form.potonganBank
+              }
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  potonganBank:
                     e.target.value,
                 })
               }
@@ -500,9 +586,7 @@ export default function App() {
 
               {accounts.map(
                 (item, i) => (
-                  <option
-                    key={i}
-                  >
+                  <option key={i}>
                     {item.nama}
                   </option>
                 )
@@ -530,9 +614,7 @@ export default function App() {
 
               {accounts.map(
                 (item, i) => (
-                  <option
-                    key={i}
-                  >
+                  <option key={i}>
                     {item.nama}
                   </option>
                 )
@@ -542,11 +624,13 @@ export default function App() {
             {/* ADMIN */}
             <select
               style={input}
-              value={form.admin}
+              value={
+                form.adminMasuk
+              }
               onChange={(e) =>
                 setForm({
                   ...form,
-                  admin:
+                  adminMasuk:
                     e.target.value,
                 })
               }
@@ -558,15 +642,14 @@ export default function App() {
 
               {accounts.map(
                 (item, i) => (
-                  <option
-                    key={i}
-                  >
+                  <option key={i}>
                     {item.nama}
                   </option>
                 )
               )}
             </select>
 
+            {/* KETERANGAN */}
             <textarea
               placeholder="Keterangan"
               style={{
@@ -590,9 +673,74 @@ export default function App() {
               }
             >
               Simpan
-              Transaksi
             </button>
           </Box>
+        </div>
+      )}
+
+      {/* JENIS */}
+      {page === "jenis" && (
+        <div style={{ padding: 20 }}>
+          <h1>
+            Jenis
+            Transaksi
+          </h1>
+
+          <Box>
+            <input
+              placeholder="Nama Jenis"
+              style={input}
+              value={
+                newJenis.nama
+              }
+              onChange={(e) =>
+                setNewJenis({
+                  ...newJenis,
+                  nama:
+                    e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Biaya Admin"
+              style={input}
+              value={
+                newJenis.admin
+              }
+              onChange={(e) =>
+                setNewJenis({
+                  ...newJenis,
+                  admin:
+                    e.target.value,
+                })
+              }
+            />
+
+            <button
+              style={button}
+              onClick={
+                tambahJenis
+              }
+            >
+              Tambah Jenis
+            </button>
+          </Box>
+
+          {jenisList.map(
+            (item, index) => (
+              <Box key={index}>
+                <h2>{item.nama}</h2>
+
+                <h3>
+                  Admin:
+                  Rp{" "}
+                  {item.admin.toLocaleString()}
+                </h3>
+              </Box>
+            )
+          )}
         </div>
       )}
 
@@ -637,16 +785,6 @@ export default function App() {
               Admin
               BRILink
             </p>
-
-            <button
-              style={{
-                ...button,
-                background:
-                  "#ef4444",
-              }}
-            >
-              Logout
-            </button>
           </Box>
         </div>
       )}
@@ -661,6 +799,7 @@ export default function App() {
           background: "#111827",
           display: "flex",
           padding: 10,
+          overflowX: "auto",
         }}
       >
         <Menu
@@ -683,6 +822,13 @@ export default function App() {
           text="Tambah"
           click={() =>
             setPage("tambah")
+          }
+        />
+
+        <Menu
+          text="Jenis"
+          click={() =>
+            setPage("jenis")
           }
         />
 
@@ -754,13 +900,13 @@ function Menu({
     <button
       onClick={click}
       style={{
-        flex: 1,
         margin: 5,
         padding: 12,
         border: "none",
         borderRadius: 10,
         background: "#2563eb",
         color: "white",
+        minWidth: 90,
       }}
     >
       {text}
@@ -768,7 +914,7 @@ function Menu({
   );
 }
 
-// INPUT
+// STYLE INPUT
 const input = {
   width: "100%",
   padding: 15,
@@ -778,7 +924,7 @@ const input = {
   fontSize: 16,
 };
 
-// BUTTON
+// STYLE BUTTON
 const button = {
   width: "100%",
   padding: 15,
